@@ -1,0 +1,214 @@
+openapi: 3.0.3
+info:
+  title: Airtable
+  version: '0.1'
+  termsOfService: https://www.airtable.com/company/tos
+  license:
+    name: GNU Free Documentation License 1.3
+    url: https://www.gnu.org/licenses/fdl-1.3.html
+  description: |
+    This is a description of Airtable API created by a third party.
+    
+    Airtable is a trademark of Formagrid Inc.
+servers:
+- url: https://api.airtable.com/v0
+paths:
+  /{baseId}/{tableIdOrName}:
+    get:
+      operationId: list_records
+      parameters:
+      - name: baseId
+        in: path
+        schema:
+          type: string
+      - name: tableIdOrName
+        in: path
+        schema:
+          type: string
+      - name: timeZone
+        in: query
+        schema:
+          type: string
+        description: The time zone that should be used to format dates when using string as the cellFormat. This parameter is required when using string as the cellFormat.
+      - name: userLocale
+        in: query
+        schema:
+          type: string
+        description: The user locale that should be used to format dates when using string as the cellFormat. This parameter is required when using string as the cellFormat.
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 100
+        description: The number of records returned in each request. Must be less than or equal to 100. Default is 100.
+      - name: maxRecords
+        in: query
+        schema:
+          type: integer
+        description: The maximum total number of records that will be returned in your requests. If this value is larger than pageSize (which is 100 by default), you may have to load multiple pages to reach this total.
+      - name: offset
+        in: query
+        schema:
+          type: string
+        description: To fetch the next page of records, include offset from the previous request in the next request's parameters.
+      - name: view
+        in: query
+        schema:
+          type: string
+        description: The name or ID of a view in the table. If set, only the records in that view will be returned. The records will be sorted according to the order of the view unless the sort parameter is included, which overrides that order. Fields hidden in this view will be returned in the results. To only return a subset of fields, use the fields parameter.
+      - name: sort
+        in: query
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/sort'
+        description: |
+          A list of sort objects that specifies how the records will be ordered. Each sort object must have a field key specifying the name of the field to sort on, and an optional direction key that is either "asc" or "desc". The default direction is "asc".
+
+          The sort parameter overrides the sorting of the view specified in the view parameter. If neither the sort nor the view parameter is included, the order of records is arbitrary.
+      - name: filterByFormula
+        in: query
+        schema:
+          type: string
+        description: |
+          A formula used to filter records. The formula will be evaluated for each record, and if the result is not 0, false, "", NaN, [], or #Error! the record will be included in the response. We recommend testing your formula in the Formula field UI before using it in your API request.
+
+          If combined with the view parameter, only records in that view which satisfy the formula will be returned.
+          
+          The formula must be encoded first before passing it as a value. You can use this tool to not only encode the formula but also create the entire url you need.
+          
+          Formulas can use field names, or field id's inside of the formula.
+          
+          Note Airtable's API only accepts request with a URL shorter than 16,000 characters. Encoded formulas may cause your requests to exceed this limit. To fix this issue you can instead make a POST request to /v0/{baseId}/{tableIdOrName}/listRecords while passing the parameters within the body of the request instead of the query parameters.
+      - name: cellFormat
+        in: query
+        schema:
+          type: string
+          enum:
+          - json
+          - string
+          default: json
+        description: |
+          The format that should be used for cell values. Supported values are:
+          
+          - json: cells will be formatted as JSON, depending on the field type.
+          - string: cells will be formatted as user-facing strings, regardless of the field type.
+          
+          The timeZone and userLocale parameters are required when using string as the cellFormat.
+          
+          Note: You should not rely on the format of these strings, as it is subject to change.
+          
+          The default is json.
+      - name: fields
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+        description: |
+          Only data for fields whose names or IDs are in this list will be included in the result. If you don't need every field, you can use this parameter to reduce the amount of data transferred.
+
+          Note Airtable's API only accepts request with a URL shorter than 16,000 characters. Encoded formulas may cause your requests to exceed this limit. To fix this issue you can instead make a POST request to /v0/{baseId}/{tableIdOrName}/listRecords while passing the parameters within the body of the request instead of the query parameters.
+
+      - name: returnFieldsByFieldId
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: |
+          An optional boolean value that lets you return field objects where the key is the field id.
+
+          This defaults to false, which returns field objects where the key is the field name.
+
+      - name: recordMetadata
+        in: query
+        schema:
+          type: boolean
+        description: An optional field that, if specified, includes commentCount on each record returned.
+
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  offset:
+                    type: string
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/record'
+                required:
+                - records
+        '422':
+          description: |
+            Iteration timeout
+            
+            Iteration may timeout due to client inactivity or server restarts. It may then restart iteration from the beginning.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - pat: [ ]
+      - oauth:
+        - data.records:read
+
+components:
+  schemas:
+    error:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          type: object
+          properties:
+            type:
+              type: string
+          required:
+          - type
+      required:
+      - error
+    record:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        createdTime:
+          type: string
+          format: datetime
+        fields:
+          type: object
+        commentCount:
+          type: integer
+      required:
+      - id
+      - createdTime
+      - fields
+    sort:
+      type: object
+      properties:
+        field:
+          type: string
+        direction:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: asc
+      required:
+      - field
+
+  securitySchemes:
+    pat:
+      type: http
+      scheme: bearer
+    oauth:
+      type: oauth2
+      flows: {}

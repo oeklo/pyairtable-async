@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pyairtable-async"
+version = "0.1.0"
+description = ""
+authors = ["Raphael Krupinski <10319569-mattesilver@users.noreply.gitlab.com>"]
+readme = "README.md"
+packages = [{include = "airtable", from = "gen"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+lapidary = {path = "../lapidary/lapidary", develop = true}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.lapidary]
+document_path= 'openapi.yaml'
+package= 'airtable'
