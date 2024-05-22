@@ -7,13 +7,13 @@ import typing
 import lapidary.runtime
 import pydantic
 import typing_extensions
-import airtable.components.schemas.record.schema
+import airtable.components.schemas.Record.schema
 import lapidary.runtime
 
 
-class schema(lapidary.runtime.ModelBase):
+class RecordList(lapidary.runtime.ModelBase):
     records: typing.Annotated[
-        list[airtable.components.schemas.record.schema.record],
+        list[airtable.components.schemas.Record.schema.Record],
         pydantic.Field(
             alias='records',
         )

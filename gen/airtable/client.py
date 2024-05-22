@@ -12,9 +12,10 @@ from typing import Annotated, Union
 from lapidary.runtime import *
 
 
+import airtable.components.schemas.ListRecordsRequest.schema
+import airtable.components.schemas.RecordList.schema
+import airtable.components.schemas.SortOrder.schema
 import airtable.components.schemas.error.schema
-import airtable.components.schemas.sort.schema
-import airtable.paths.u_00007e01u_00007bbaseIdu_00007du_00007e01u_00007btableIdOrNameu_00007d.get.responses.u_00003200.content.applicationu_00007e1json.schema.schema
 
 
 class ApiClient(ClientBase):
@@ -48,17 +49,44 @@ class ApiClient(ClientBase):
         maxRecords_q: Annotated[typing.Union[None, int], Query('maxRecords', )] = None,
         offset_q: Annotated[typing.Union[None, str], Query('offset', )] = None,
         view_q: Annotated[typing.Union[None, str], Query('view', )] = None,
-        sort_q: Annotated[typing.Union[None, list[airtable.components.schemas.sort.schema.sort]], Query('sort', )] = None,
+        sort_q: Annotated[typing.Union[None, list[airtable.components.schemas.SortOrder.schema.SortOrder]], Query('sort', )] = None,
         filterByFormula_q: Annotated[typing.Union[None, str], Query('filterByFormula', )] = None,
         cellFormat_q: Annotated[typing.Union[None, str], Query('cellFormat', )] = None,
         fields_q: Annotated[typing.Union[None, list[str]], Query('fields', )] = None,
         returnFieldsByFieldId_q: Annotated[typing.Union[None, bool], Query('returnFieldsByFieldId', )] = None,
         recordMetadata_q: Annotated[typing.Union[None, bool], Query('recordMetadata', )] = None,
     ) -> Annotated[
-        typing.Union[airtable.components.schemas.error.schema.error, airtable.paths.u_00007e01u_00007bbaseIdu_00007du_00007e01u_00007btableIdOrNameu_00007d.get.responses.u_00003200.content.applicationu_00007e1json.schema.schema.schema],
+        typing.Union[airtable.components.schemas.RecordList.schema.RecordList, airtable.components.schemas.error.schema.error],
         Responses({
             '200': {
-                'application/json': airtable.paths.u_00007e01u_00007bbaseIdu_00007du_00007e01u_00007btableIdOrNameu_00007d.get.responses.u_00003200.content.applicationu_00007e1json.schema.schema.schema,
+                'application/json': airtable.components.schemas.RecordList.schema.RecordList,
+            },
+            '422': {
+                'application/json': airtable.components.schemas.error.schema.error,
+            },
+        })
+    ]:
+        pass
+
+    @post('/{baseId}/{tableIdOrName}/listRecords', security=[{'pat': []}, {'oauth': ['data.records:read']}])
+    async def list_records2(
+        self: Self,
+        request_body: Annotated[
+            airtable.components.schemas.ListRecordsRequest.schema.ListRecordsRequest,
+            RequestBody({
+                'application/json': airtable.components.schemas.ListRecordsRequest.schema.ListRecordsRequest,
+            }),
+        ],
+        *,
+        baseId_p: Annotated[typing.Union[None, str], Path('baseId', )] = None,
+        tableIdOrName_p: Annotated[typing.Union[None, str], Path('tableIdOrName', )] = None,
+        timeZone_q: Annotated[typing.Union[None, str], Query('timeZone', )] = None,
+        userLocale_q: Annotated[typing.Union[None, str], Query('userLocale', )] = None,
+    ) -> Annotated[
+        typing.Union[airtable.components.schemas.RecordList.schema.RecordList, airtable.components.schemas.error.schema.error],
+        Responses({
+            '200': {
+                'application/json': airtable.components.schemas.RecordList.schema.RecordList,
             },
             '422': {
                 'application/json': airtable.components.schemas.error.schema.error,
